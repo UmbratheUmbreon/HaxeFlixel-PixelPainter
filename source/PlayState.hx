@@ -72,7 +72,7 @@ class PlayState extends FlxState
 		
 		brushSizeSlider = new FlxUISlider(this, "brushSize", colorWheel.x, colorWheel.y + 100, 0, 100, 100, 15, 3, FlxColor.WHITE);
 		brushSizeSlider.camera = camHUD;
-		brushSizeSlider.nameLabel.text = FlxG.random.bool(1) ? "Brush Size" : "Boob Size";
+		brushSizeSlider.nameLabel.text = "Brush Size";
 		add(brushSizeSlider);
 		
 		pxGroup = new FlxGroup();
