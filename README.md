@@ -1,4 +1,4 @@
-# GitHub-PixelPainter
+# Flixel-PixelPainter
 
 This project was to test a HScript fork but now this is a thing I guess
 
