@@ -30,6 +30,7 @@ import flixel.addons.ui.FlxUISlider;
 
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import openfl.display.JPEGEncoderOptions;
 import openfl.display.PNGEncoderOptions;
 
 import openfl.utils.ByteArray;
@@ -58,7 +59,9 @@ class PlayState extends FlxState
 	
 	var brushSizeSlider:FlxUISlider;
 	
-	var saveButton:FlxButton;
+	var saveJPEGButton:FlxButton;
+	
+	var savePNGButton:FlxButton;
 	
 	var pxGroup:FlxTypedGroup<FlxSprite>;
 	
@@ -111,13 +114,21 @@ class PlayState extends FlxState
 		brushSizeSlider.setPosition(colorWheel.x, colorWheel.y + 100);
 		add(brushSizeSlider);
 		
-		saveButton = new FlxButton(0, 0, "Save to PNG", function()
+		saveJPEGButton = new FlxButton(0, 0, "Save to JPEG", function()
 		{
-			savePNG();
+			saveArt(true);
 		});
-		saveButton.camera = camHUD;
-		saveButton.setPosition(10, (FlxG.height - saveButton.height) - 10);
-		add(saveButton);
+		saveJPEGButton.camera = camHUD;
+		saveJPEGButton.setPosition(10, (FlxG.height - saveJPEGButton.height) - 45);
+		add(saveJPEGButton);
+		
+		savePNGButton = new FlxButton(0, 0, "Save to PNG", function()
+		{
+			saveArt();
+		});
+		savePNGButton.camera = camHUD;
+		savePNGButton.setPosition(10, (saveJPEGButton.y + savePNGButton.height) + 10);
+		add(savePNGButton);
 		
 		pxGroup = new FlxTypedGroup<FlxSprite>();
 		add(pxGroup);
@@ -200,15 +211,15 @@ class PlayState extends FlxState
 		super.destroy();
 	}
 	
-	function savePNG():Void
+	function saveArt(?jpeg:Bool = false):Void
 	{
 		var bitmap:Bitmap = new Bitmap(BitmapData.fromImage(FlxG.stage.window.readPixels()));
 		
-		var bytes:ByteArray = bitmap.bitmapData.encode(bitmap.bitmapData.rect, new PNGEncoderOptions());
+		var bytes:ByteArray = bitmap.bitmapData.encode(bitmap.bitmapData.rect, jpeg ? new JPEGEncoderOptions() : new PNGEncoderOptions());
 		
 		if (!sys.FileSystem.exists("./art/"))
 			sys.FileSystem.createDirectory("./art/");
 		
-		File.saveBytes("art/art_" + Date.now().toString().split(":").join("-") + ".png", bytes);
+		File.saveBytes("art/art_" + Date.now().toString().split(":").join("-") + (jpeg ? ".jpeg" : ".png"), bytes);
 	}
 }
