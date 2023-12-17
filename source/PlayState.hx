@@ -1,5 +1,9 @@
 package;
 
+import sys.FileSystem;
+
+import sys.io.File;
+
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxCamera;
@@ -205,6 +209,6 @@ class PlayState extends FlxState
 		if (!sys.FileSystem.exists("./art/"))
 			sys.FileSystem.createDirectory("./art/");
 		
-		sys.io.File.saveBytes("art/art_" + Date.now().toString().split(":").join("-") + ".png", bytes);
+		File.saveBytes("art/art_" + Date.now().toString().split(":").join("-") + ".png", bytes);
 	}
 }
