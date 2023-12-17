@@ -45,7 +45,7 @@ enum Expr {
 #end
 	EConst( c : Const );
 	EIdent( v : String );
-	EImport( v : String, ?a : String );
+	EImport( v : String, ?s : Bool, ?a : String );
 	EVar( n : String, ?t : CType, ?e : Expr );
 	EParent( e : Expr );
 	EBlock( e : Array<Expr> );
@@ -123,7 +123,7 @@ enum Error {
 
 enum ModuleDecl {
 	DPackage( path : Array<String> );
-	DImport( path : Array<String>, ?a : String, ?everything : Bool );
+	DImport( path : Array<String>, ?s : Bool, ?a : String );
 	DClass( c : ClassDecl );
 	DTypedef( c : TypeDecl );
 }

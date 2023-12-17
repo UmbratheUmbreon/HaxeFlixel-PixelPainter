@@ -15,29 +15,32 @@ class Script
 	
 	public function new():Void
 	{
-		reset();
-		
 		global.push(this);
 	}
 	
-	public function doString(s:String):Dynamic
+	public function doString(s:String, ?preset:Bool = true):Dynamic
 	{
 		if (_destroyed)
 			return null;
 		
-		reset();
+		interp = new Interp();
+		
+		parser = new Parser();
+		
+		if (preset)
+			this.preset();
 		
 		return interp.execute(parser.parseString(s));
 	}
 	
-	public function doFile(file:String):Dynamic
+	public function doFile(file:String, ?preset:Bool = true):Dynamic
 	{
 		if (_destroyed)
 			return null;
 		
 		#if sys
 			if (sys.FileSystem.exists(file))
-				return doString(sys.io.File.getContent(file));
+				return doString(sys.io.File.getContent(file), preset);
 			else
 				throw "Script.doFile: The file " + file + " doesn't exist!";
 		#end
@@ -53,7 +56,7 @@ class Script
 		if (interp.variables.exists(key))
 		{
 			if (Reflect.isFunction(interp.variables.get(key)))
-				return Reflect.callMethod(null, interp.variables.get(key), args);
+				return Reflect.callMethod(this, interp.variables.get(key), args);
 			else
 				throw "Script.call: The key " + key + " isn't a function!";
 		}
@@ -80,7 +83,6 @@ class Script
 		#if sys
 			interp.imports.set("FileSystem", sys.FileSystem);
 			interp.imports.set("File", sys.io.File);
-			interp.imports.set("Host", sys.net.Host);
 		#end
 		
 		interp.imports.set("Interp", Interp);
@@ -95,18 +97,6 @@ class Script
 		parser.allowTypes = true;
 		
 		parser.allowMetadata = true;
-	}
-	
-	public function reset():Void
-	{
-		if (_destroyed)
-			return;
-		
-		interp = new Interp();
-		
-		parser = new Parser();
-		
-		preset();
 	}
 	
 	public function destroy():Void

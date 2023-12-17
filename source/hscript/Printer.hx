@@ -122,7 +122,7 @@ class Printer {
 			}
 		case EIdent(v):
 			add(v);
-		case EImport(v, a):
+		case EImport(v, s, a):
 			final c:Class<Dynamic> = Type.resolveClass(v);
 			
 			if (c == null)

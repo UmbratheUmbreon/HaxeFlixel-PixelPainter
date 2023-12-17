@@ -35,13 +35,11 @@ class Interp {
 	#if haxe3
 	public var variables : Map<String,Dynamic>;
 	public var imports : Map<String, Dynamic>;
-	public static var globalVariables : Map<String, Dynamic> = new Map<String, Dynamic>();
 	var locals : Map<String,{ r : Dynamic }>;
 	var binops : Map<String, Expr -> Expr -> Dynamic >;
 	#else
 	public var variables : Hash<Dynamic>;
 	public var imports : Hash<Dynamic>;
-	public static var globalVariables : Hash<Dynamic> = new Hash();
 	var locals : Hash<{ r : Dynamic }>;
 	var binops : Hash< Expr -> Expr -> Dynamic >;
 	#end
@@ -121,7 +119,7 @@ class Interp {
 		binops.set("||",function(e1,e2) return me.expr(e1) == true || me.expr(e2) == true);
 		binops.set("&&",function(e1,e2) return me.expr(e1) == true && me.expr(e2) == true);
 		binops.set("=",assign);
-		binops.set("...",function(e1,e2) return new #if (haxe_211 || haxe3) IntIterator #else IntIter #end(me.expr(e1),me.expr(e2)));
+		binops.set("...",function(e1,e2) return new InterpIterator(me, me.expr(e1), me.expr(e2)));
 		assignOp("+=",function(v1:Dynamic,v2:Dynamic) return v1 + v2);
 		assignOp("-=",function(v1:Float,v2:Float) return v1 - v2);
 		assignOp("*=",function(v1:Float,v2:Float) return v1 * v2);
@@ -317,7 +315,7 @@ class Interp {
 		if (locals.exists(id))
 			return locals.get(id).r;
 		
-		for (map in [variables, imports, globalVariables])
+		for (map in [variables, imports])
 			if (map.exists(id))
 				return map.get(id);
 		
@@ -343,32 +341,55 @@ class Interp {
 			}
 		case EIdent(id):
 			return resolve(id);
-		case EImport(v, a):
+		case EImport(v, s, a):
 			var n:String = v.split('.')[v.split('.').length - 1];
 			
 			if (a != null && a.length > 0)
 				n = a;
 			
-			final c:Class<Dynamic> = Type.resolveClass(v);
+			final cl:Class<Dynamic> = Type.resolveClass(v);
 			
-			if (c == null)
+			if (cl == null)
 			{
-				final e:Enum<Dynamic> = Type.resolveEnum(v);
+				final en:Enum<Dynamic> = Type.resolveEnum(v);
 				
-				if (e == null)
+				if (en == null)
 					error(ECustom("Type not found : " + v));
 				else
 				{
-					var structure:Dynamic = {};
+					var constructors:Dynamic = {};
 					
-					for (i in e.createAll())
-						Reflect.setField(structure, Std.string(i), i);
+					for (i in en.getConstructors())
+					{
+						try
+						{
+							Reflect.setField(constructors, i, en.createByName(i));
+						}
+						catch (e:haxe.Exception)
+						{
+							error(ECustom(e.message));
+						}
+					}
 					
-					imports.set(n, structure);
+					imports[n] = constructors;
 				}
 			}
 			else
-				imports.set(n, c);
+			{
+				imports[n] = cl;
+				
+				// I'll revisit this later - Detective
+				/*
+					if (s)
+					{
+						for (field in Type.getClassFields(cl))
+						{
+							if (!variables.exists(field))
+								variables[field] = Reflect.getProperty(cl, field);
+						}
+					}
+				*/
+			}
 			
 			return null;
 		case EVar(n,_,e):

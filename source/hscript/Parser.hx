@@ -773,8 +773,8 @@ class Parser {
 			mk(ESwitch(e, cases, def), p1, tokenMax);
 		case "import":
 			var path = [getIdent()];
-			var a = "";
 			var star = false;
+			var a = "";
 			while( true ) {
 				var t = token();
 				if( t != TDot ) {
@@ -803,7 +803,7 @@ class Parser {
 					error(ECustom("Type aliases must start with an uppercase letter"), readPos, readPos);
 			}
 			
-			mk(EImport(path.join("."), a));
+			mk(EImport(path.join("."), star, a));
 		default:
 			null;
 		}
@@ -1150,8 +1150,8 @@ class Parser {
 			return DPackage(path);
 		case "import":
 			var path = [getIdent()];
-			var a = "";
 			var star = false;
+			var a = "";
 			while( true ) {
 				var t = token();
 				if( t != TDot ) {
@@ -1169,7 +1169,7 @@ class Parser {
 				}
 			}
 			ensure(TSemicolon);
-			return DImport(path, a, star);
+			return DImport(path, star, a);
 		case "class":
 			var name = getIdent();
 			var params = parseParams();
