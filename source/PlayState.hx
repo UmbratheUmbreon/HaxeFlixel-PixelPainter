@@ -103,7 +103,7 @@ class PlayState extends FlxState
 		enableVisualizer.setPosition(selectedColorVisualizer.x + 45, selectedColorVisualizer.y);
 		add(enableVisualizer);
 		
-		brushSize = 30;
+		brushSize = 50;
 		
 		brushSizeSlider = new FlxUISlider(this, "brushSize", 0, 0, 0, 100, 100, 15, 3, FlxColor.WHITE, 0xFF828282);
 		brushSizeSlider.camera = camHUD;
